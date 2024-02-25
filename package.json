@@ -6,6 +6,7 @@
   "author": "Julia Glinka <julia.w.glinka@gmail.com>",
   "license": "MIT",
   "dependencies": {
+    "inquirer": "6.5.0",
     "jimp": "0.6.4"
   }
 }
