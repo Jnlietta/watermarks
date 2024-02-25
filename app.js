@@ -27,6 +27,11 @@ const addImageWatermarkToImage = async function(inputFile, outputFile, watermark
   await image.quality(100).writeAsync(outputFile);
 };
 
+const prepareOutputFilename = (filename) => {
+  const [ name, ext ] = filename.split('.');
+  return `${name}-with-watermark.${ext}`;
+};
+
 const startApp = async () => {
 
   // Ask if user is ready
@@ -58,7 +63,7 @@ const startApp = async () => {
       message: 'Type your watermark text:',
     }]);
     options.watermarkText = text.value;
-    addTextWatermarkToImage('./img/' + options.inputImage, './test-with-watermark.jpg', options.watermarkText);
+    addTextWatermarkToImage('./img/' + options.inputImage, './img/' + prepareOutputFilename(options.inputImage), options.watermarkText);
   }
   else {
     const image = await inquirer.prompt([{
@@ -68,7 +73,7 @@ const startApp = async () => {
       default: 'logo.png',
     }]);
     options.watermarkImage = image.filename;
-    addImageWatermarkToImage('./img/' + options.inputImage, './test-with-watermark.jpg', './img/' + options.watermarkImage);
+    addImageWatermarkToImage('./img/' + options.inputImage, './img/' + prepareOutputFilename(options.inputImage), './img/' + options.watermarkImage);
   }
 }
 
