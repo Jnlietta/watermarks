@@ -66,27 +66,45 @@ const startApp = async () => {
     message: 'What file do you want to mark?',
     default: 'test.jpg',
   }, {
-    name: 'watermarkType',
-    type: 'list',
-    choices: ['Text watermark', 'Image watermark'],
+    name: 'editImage',
+    message: 'Do you want to edit image?',
+    type: 'confirm'
   }]);
+
+  if (options.editImage) {
+    const editOptions = await inquirer.prompt([{
+      name: 'modify',
+      type: 'list',
+      message: 'Choose how to modify the image:',
+      choices: ['make image brighter', 'increace contrast', 'make image b&w', 'invert image']
+    }]);
+  }
+
+  const watermarkOptions = await inquirer.prompt([
+    {
+        name: 'watermarkType',
+        type: 'list',
+        message: 'Choose the type of watermark:',
+        choices: ['Text watermark', 'Image watermark'],
+    }
+  ]);
 
   const inputImagePath = './img/' + options.inputImage;
   const outputImagePath = './img/' + prepareOutputFilename(options.inputImage);
 
-  if(options.watermarkType === 'Text watermark') {
+  if(watermarkOptions.watermarkType === 'Text watermark') {
     const text = await inquirer.prompt([{
       name: 'value',
       type: 'input',
       message: 'Type your watermark text:',
     }]);
-    options.watermarkText = text.value;
+    watermarkOptions.watermarkText = text.value;
 
     fs.access(inputImagePath, fs.constants.F_OK, (err) => {
       if (err) {
         console.error(`${inputImagePath} file does not exist!`);
       } else {
-        addTextWatermarkToImage(inputImagePath, outputImagePath, options.watermarkText);
+        addTextWatermarkToImage(inputImagePath, outputImagePath, watermarkOptions.watermarkText);
       }
     });
   }
@@ -97,8 +115,8 @@ const startApp = async () => {
       message: 'Type your watermark name:',
       default: 'logo.png',
     }]);
-    options.watermarkImage = image.filename;
-    const watermarkImagePath = './img/' + options.watermarkImage;
+    watermarkOptions.watermarkImage = image.filename;
+    const watermarkImagePath = './img/' + watermarkOptions.watermarkImage;
 
     fs.access(inputImagePath, fs.constants.F_OK, (err1) => {
       fs.access(watermarkImagePath, fs.constants.F_OK, (err2) => {
