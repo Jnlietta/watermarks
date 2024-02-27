@@ -90,6 +90,14 @@ const startApp = async () => {
 
     if(editOptions.modify === 'make image brighter'){
       modifiedImage.brightness(0.5);
+    } 
+    else if (editOptions.modify === 'increace contrast'){
+      modifiedImage.contrast(0.5);
+    }
+    else if (editOptions.modify === 'make image b&w'){
+      modifiedImage.greyscale();
+    } else {
+      modifiedImage.invert();
     }
     
     //change paths for images after modification
@@ -98,7 +106,7 @@ const startApp = async () => {
     
     //save modified image
     await modifiedImage.writeAsync(paths.inputImagePath);
-    console.log('Image has been successfully brightened!');
+    console.log('Image has been successfully modified and saved as a new file!');
   }
 
   const watermarkOptions = await inquirer.prompt([
