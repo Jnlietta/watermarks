@@ -71,6 +71,11 @@ const startApp = async () => {
     type: 'confirm'
   }]);
 
+  const paths = {
+    inputImagePath : './img/' + options.inputImage,
+    outputImagePath : './img/' + prepareOutputFilename(options.inputImage)
+  }
+
   if (options.editImage) {
     const editOptions = await inquirer.prompt([{
       name: 'modify',
@@ -78,6 +83,22 @@ const startApp = async () => {
       message: 'Choose how to modify the image:',
       choices: ['make image brighter', 'increace contrast', 'make image b&w', 'invert image']
     }]);
+
+    //clone original image before modification
+    const originalImage = await Jimp.read(paths.inputImagePath);
+    const modifiedImage = originalImage.clone();
+
+    if(editOptions.modify === 'make image brighter'){
+      modifiedImage.brightness(0.5);
+    }
+    
+    //change paths for images after modification
+    paths.inputImagePath = './img/modified_' + options.inputImage;
+    paths.outputImagePath = './img/' + prepareOutputFilename('modified_' + options.inputImage);
+    
+    //save modified image
+    await modifiedImage.writeAsync(paths.inputImagePath);
+    console.log('Image has been successfully brightened!');
   }
 
   const watermarkOptions = await inquirer.prompt([
@@ -89,9 +110,6 @@ const startApp = async () => {
     }
   ]);
 
-  const inputImagePath = './img/' + options.inputImage;
-  const outputImagePath = './img/' + prepareOutputFilename(options.inputImage);
-
   if(watermarkOptions.watermarkType === 'Text watermark') {
     const text = await inquirer.prompt([{
       name: 'value',
@@ -100,11 +118,11 @@ const startApp = async () => {
     }]);
     watermarkOptions.watermarkText = text.value;
 
-    fs.access(inputImagePath, fs.constants.F_OK, (err) => {
+    fs.access(paths.inputImagePath, fs.constants.F_OK, (err) => {
       if (err) {
-        console.error(`${inputImagePath} file does not exist!`);
+        console.error(`${paths.inputImagePath} file does not exist!`);
       } else {
-        addTextWatermarkToImage(inputImagePath, outputImagePath, watermarkOptions.watermarkText);
+        addTextWatermarkToImage(paths.inputImagePath, paths.outputImagePath, watermarkOptions.watermarkText);
       }
     });
   }
@@ -118,12 +136,12 @@ const startApp = async () => {
     watermarkOptions.watermarkImage = image.filename;
     const watermarkImagePath = './img/' + watermarkOptions.watermarkImage;
 
-    fs.access(inputImagePath, fs.constants.F_OK, (err1) => {
+    fs.access(paths.inputImagePath, fs.constants.F_OK, (err1) => {
       fs.access(watermarkImagePath, fs.constants.F_OK, (err2) => {
         if (err1 || err2) {
-          console.error(`${inputImagePath} file or ${watermarkImagePath} file does not exist!`);
+          console.error(`${paths.inputImagePath} file or ${watermarkImagePath} file does not exist!`);
         } else {
-          addImageWatermarkToImage(inputImagePath, outputImagePath, watermarkImagePath);
+          addImageWatermarkToImage(paths.inputImagePath, paths.outputImagePath, watermarkImagePath);
         }
       });
     });
